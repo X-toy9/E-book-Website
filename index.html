@@ -1,0 +1,1268 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumina Books - Premium E-Book Experience</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                900: "#0c4a6e",
+              },
+              accent: {
+                500: "#8b5cf6",
+                600: "#7c3aed",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              serif: ["Merriweather", "serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body
+    class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white"
+  >
+    <!-- Toast Notification Box -->
+    <div
+      id="toast"
+      class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-out bg-slate-800 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-slate-700 flex items-center space-x-3 pointer-events-none"
+    >
+      <div id="toast-icon" class="text-emerald-400 text-lg">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div id="toast-message" class="text-sm font-medium">
+        Notification message
+      </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header
+      class="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between"
+      >
+        <!-- Logo -->
+        <div
+          class="flex items-center space-x-3 cursor-pointer"
+          onclick="navigateTo('landing')"
+        >
+          <div
+            class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/20"
+          >
+            <i class="fas fa-book-open"></i>
+          </div>
+          <span
+            class="text-2xl font-extrabold bg-gradient-to-r from-white via-slate-200 to-brand-400 bg-clip-text text-transparent"
+            >Lumina</span
+          >
+        </div>
+
+        <!-- Desktop Nav Links -->
+        <nav class="hidden md:flex items-center space-x-8">
+          <button
+            onclick="navigateTo('landing')"
+            class="nav-link text-sm font-medium text-slate-300 hover:text-white transition-colors py-2"
+            data-page="landing"
+          >
+            Home
+          </button>
+          <button
+            onclick="navigateTo('store')"
+            class="nav-link text-sm font-medium text-slate-300 hover:text-white transition-colors py-2"
+            data-page="store"
+          >
+            Explore Store
+          </button>
+          <button
+            onclick="navigateTo('about')"
+            class="nav-link text-sm font-medium text-slate-300 hover:text-white transition-colors py-2"
+            data-page="about"
+          >
+            About
+          </button>
+          <button
+            onclick="navigateTo('contact')"
+            class="nav-link text-sm font-medium text-slate-300 hover:text-white transition-colors py-2"
+            data-page="contact"
+          >
+            Contact
+          </button>
+        </nav>
+
+        <!-- Actions Right -->
+        <div class="flex items-center space-x-4">
+          <!-- Cart Button -->
+          <button
+            onclick="toggleCartModal(true)"
+            class="relative p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-xl transition-all"
+          >
+            <i class="fas fa-shopping-bag text-lg"></i>
+            <span
+              id="cart-badge"
+              class="absolute -top-1 -right-1 bg-brand-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md scale-0 transition-transform"
+              >0</span
+            >
+          </button>
+
+          <!-- Auth Buttons / User Profile Badge -->
+          <div id="auth-nav-container" class="flex items-center space-x-3">
+            <button
+              onclick="openAuthModal('login')"
+              class="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              Log In
+            </button>
+            <button
+              onclick="openAuthModal('register')"
+              class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white rounded-xl shadow-lg shadow-brand-600/30 transition-all hover:scale-[1.02]"
+            >
+              Sign Up
+            </button>
+          </div>
+
+          <!-- Mobile Menu Trigger -->
+          <button
+            onclick="toggleMobileMenu()"
+            class="md:hidden p-2 text-slate-300 hover:text-white focus:outline-none"
+          >
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Menu -->
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden border-b border-slate-800 bg-slate-900 px-4 pt-2 pb-6 space-y-3"
+      >
+        <button
+          onclick="
+            navigateTo('landing');
+            toggleMobileMenu();
+          "
+          class="block w-full text-left py-2 px-3 text-slate-300 hover:bg-slate-800 rounded-lg"
+        >
+          Home
+        </button>
+        <button
+          onclick="
+            navigateTo('store');
+            toggleMobileMenu();
+          "
+          class="block w-full text-left py-2 px-3 text-slate-300 hover:bg-slate-800 rounded-lg"
+        >
+          Explore Store
+        </button>
+        <button
+          onclick="
+            navigateTo('about');
+            toggleMobileMenu();
+          "
+          class="block w-full text-left py-2 px-3 text-slate-300 hover:bg-slate-800 rounded-lg"
+        >
+          About
+        </button>
+        <button
+          onclick="
+            navigateTo('contact');
+            toggleMobileMenu();
+          "
+          class="block w-full text-left py-2 px-3 text-slate-300 hover:bg-slate-800 rounded-lg"
+        >
+          Contact
+        </button>
+        <div
+          id="mobile-auth-links"
+          class="pt-2 border-t border-slate-800 space-y-2"
+        >
+          <button
+            onclick="
+              openAuthModal('login');
+              toggleMobileMenu();
+            "
+            class="block w-full text-left py-2 px-3 text-brand-400 hover:bg-slate-800 rounded-lg"
+          >
+            Log In
+          </button>
+          <button
+            onclick="
+              openAuthModal('register');
+              toggleMobileMenu();
+            "
+            class="block w-full text-left py-2 px-3 bg-brand-600 text-white rounded-lg"
+          >
+            Register
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Content Container -->
+    <main class="flex-grow">
+      <!-- 1. LANDING PAGE VIEW -->
+      <section id="page-landing" class="page-view space-y-24 pb-20">
+        <!-- Hero Banner -->
+        <div
+          class="relative overflow-hidden pt-12 lg:pt-20 pb-16 bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800/50"
+        >
+          <div
+            class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.15),transparent_50%)]"
+          ></div>
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+                <div
+                  class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs sm:text-sm font-semibold tracking-wide"
+                >
+                  <span
+                    class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"
+                  ></span>
+                  <span>The Ultimate Digital Reading Sanctuary</span>
+                </div>
+                <h1
+                  class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight text-white"
+                >
+                  Read Anywhere. <br />
+                  <span
+                    class="bg-gradient-to-r from-brand-400 via-accent-400 to-purple-400 bg-clip-text text-transparent"
+                    >Immerse Everywhere.</span
+                  >
+                </h1>
+                <p
+                  class="text-lg text-slate-400 max-w-2xl mx-auto lg:mx-0 font-light leading-relaxed"
+                >
+                  Access thousands of bestselling e-books, exclusive audiobooks,
+                  and interactive technical guides. Designed for seamless
+                  reading across all devices.
+                </p>
+                <div
+                  class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
+                >
+                  <button
+                    onclick="navigateTo('store')"
+                    class="w-full sm:w-auto px-8 py-4 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/25 transition-all hover:scale-[1.02]"
+                  >
+                    Browse Library
+                    <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                  </button>
+                  <button
+                    onclick="openAuthModal('register')"
+                    class="w-full sm:w-auto px-8 py-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold rounded-xl transition-all"
+                  >
+                    Create Free Account
+                  </button>
+                </div>
+                <!-- Stats Brief -->
+                <div
+                  class="pt-8 border-t border-slate-800/80 grid grid-cols-3 gap-6 max-w-md mx-auto lg:mx-0"
+                >
+                  <div>
+                    <p class="text-2xl font-extrabold text-white">45,000+</p>
+                    <p class="text-xs text-slate-400">Curated Titles</p>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-extrabold text-white">1.2M+</p>
+                    <p class="text-xs text-slate-400">Active Readers</p>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-extrabold text-white">4.9/5</p>
+                    <p class="text-xs text-slate-400">App Rating</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Featured Book Spotlight Banner -->
+              <div class="lg:col-span-5 flex justify-center">
+                <div class="relative group">
+                  <div
+                    class="absolute -inset-1 bg-gradient-to-r from-brand-500 to-accent-600 rounded-2xl blur-xl opacity-40 group-hover:opacity-75 transition duration-500"
+                  ></div>
+                  <div
+                    class="relative bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl max-w-sm"
+                  >
+                    <div
+                      class="relative overflow-hidden rounded-xl mb-6 shadow-md aspect-[3/4]"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=800"
+                        alt="Featured Cover"
+                        class="w-full h-full object-cover"
+                      />
+                      <div
+                        class="absolute top-3 right-3 bg-amber-500 text-slate-950 font-extrabold text-xs px-3 py-1 rounded-full shadow-lg uppercase tracking-wider"
+                      >
+                        Bestseller
+                      </div>
+                    </div>
+                    <div class="space-y-3">
+                      <span
+                        class="text-xs text-brand-400 font-semibold uppercase tracking-wider"
+                        >Editor's Pick</span
+                      >
+                      <h3 class="text-xl font-bold text-white leading-snug">
+                        The Silicon Architect
+                      </h3>
+                      <p class="text-sm text-slate-400">By Marcus Vance</p>
+                      <div
+                        class="flex items-center justify-between pt-2 border-t border-slate-800"
+                      >
+                        <span class="text-2xl font-extrabold text-brand-400"
+                          >$18.99</span
+                        >
+                        <button
+                          onclick="openBookModal(1)"
+                          class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg transition-colors"
+                        >
+                          Explore Book
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-3xl font-bold text-white mb-4">
+              Why Readers Choose Lumina
+            </h2>
+            <p class="text-slate-400">
+              Engineered to give you the most comfortable, modern, and rich
+              digital reading platform built for booklovers and professionals
+              alike.
+            </p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div
+              class="bg-slate-900/60 border border-slate-800 p-8 rounded-2xl hover:border-slate-700 transition-all"
+            >
+              <div
+                class="w-14 h-14 bg-brand-500/10 text-brand-400 rounded-2xl flex items-center justify-center text-2xl mb-6"
+              >
+                <i class="fas fa-bolt"></i>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-3">
+                Instant Cloud Sync
+              </h3>
+              <p class="text-slate-400 text-sm leading-relaxed">
+                Start reading on your laptop, continue on your tablet, and
+                finish on your phone with zero manual synchronization.
+              </p>
+            </div>
+            <div
+              class="bg-slate-900/60 border border-slate-800 p-8 rounded-2xl hover:border-slate-700 transition-all"
+            >
+              <div
+                class="w-14 h-14 bg-accent-500/10 text-accent-400 rounded-2xl flex items-center justify-center text-2xl mb-6"
+              >
+                <i class="fas fa-download"></i>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-3">
+                DRM-Free Download
+              </h3>
+              <p class="text-slate-400 text-sm leading-relaxed">
+                Download EPUB, PDF, and Kindle formats directly. Yours to keep
+                forever on any device without restrictions.
+              </p>
+            </div>
+            <div
+              class="bg-slate-900/60 border border-slate-800 p-8 rounded-2xl hover:border-slate-700 transition-all"
+            >
+              <div
+                class="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center text-2xl mb-6"
+              >
+                <i class="fas fa-headphones"></i>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-3">
+                Included Audiobooks
+              </h3>
+              <p class="text-slate-400 text-sm leading-relaxed">
+                Switch seamlessly between text and professionally narrated
+                audiobooks with full playback controls.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Categories Preview Banner -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div
+            class="bg-gradient-to-r from-brand-900/40 via-slate-900 to-accent-900/30 border border-slate-800 rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8"
+          >
+            <div class="space-y-4 text-center md:text-left">
+              <h2 class="text-3xl font-extrabold text-white">
+                Ready to dive into your next adventure?
+              </h2>
+              <p class="text-slate-300 max-w-xl">
+                Join over 1M+ active readers worldwide and claim your 15%
+                discount on your first e-book purchase today.
+              </p>
+            </div>
+            <button
+              onclick="navigateTo('store')"
+              class="px-8 py-4 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg transition-all shrink-0"
+            >
+              Explore Full Store
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. HOME / STORE PAGE VIEW -->
+      <section
+        id="page-store"
+        class="page-view hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8"
+      >
+        <!-- Header & Filter Bar -->
+        <div class="space-y-6">
+          <div
+            class="flex flex-col md:flex-row md:items-center justify-between gap-4"
+          >
+            <div>
+              <h1 class="text-3xl font-bold text-white">E-Book Marketplace</h1>
+              <p class="text-slate-400 text-sm">
+                Discover top-rated literature, technical manuals, and sci-fi
+                sagas.
+              </p>
+            </div>
+
+            <!-- Search Input -->
+            <div class="relative max-w-md w-full">
+              <i
+                class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              ></i>
+              <input
+                type="text"
+                id="store-search-input"
+                onkeyup="filterBooks()"
+                placeholder="Search title, author, or keyword..."
+                class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-brand-500 transition-colors"
+              />
+            </div>
+          </div>
+
+          <!-- Category Filters & Sorting -->
+          <div
+            class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-6"
+          >
+            <!-- Categories -->
+            <div class="flex flex-wrap gap-2" id="category-buttons">
+              <button
+                onclick="setCategoryFilter('All', this)"
+                class="category-btn active px-4 py-2 text-xs font-semibold rounded-xl bg-brand-600 text-white transition-all"
+              >
+                All Books
+              </button>
+              <button
+                onclick="setCategoryFilter('Fiction', this)"
+                class="category-btn px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 transition-all"
+              >
+                Fiction
+              </button>
+              <button
+                onclick="setCategoryFilter('Technology', this)"
+                class="category-btn px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 transition-all"
+              >
+                Tech & AI
+              </button>
+              <button
+                onclick="setCategoryFilter('Business', this)"
+                class="category-btn px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 transition-all"
+              >
+                Business
+              </button>
+              <button
+                onclick="setCategoryFilter('Sci-Fi', this)"
+                class="category-btn px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 transition-all"
+              >
+                Sci-Fi
+              </button>
+            </div>
+
+            <!-- Sort dropdown -->
+            <div class="flex items-center space-x-3">
+              <span class="text-xs text-slate-400">Sort By:</span>
+              <select
+                id="sort-select"
+                onchange="filterBooks()"
+                class="bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500"
+              >
+                <option value="featured">Featured</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Highest Rated</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Book Grid Container -->
+        <div
+          id="books-grid"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        >
+          <!-- Dynamically Rendered Books Here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="no-results-state" class="hidden text-center py-20 space-y-4">
+          <i class="fas fa-book-open text-5xl text-slate-700"></i>
+          <h3 class="text-xl font-semibold text-slate-300">
+            No books found matching your criteria
+          </h3>
+          <p class="text-sm text-slate-500">
+            Try adjusting your search query or selecting a different category
+            filter.
+          </p>
+        </div>
+      </section>
+
+      <!-- 3. USER PROFILE PAGE VIEW -->
+      <section
+        id="page-profile"
+        class="page-view hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8"
+      >
+        <!-- Profile Info Header -->
+        <div
+          class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6"
+        >
+          <img
+            id="profile-avatar"
+            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300"
+            alt="Avatar"
+            class="w-24 h-24 rounded-2xl object-cover border-2 border-brand-500 shadow-lg"
+          />
+          <div class="text-center md:text-left flex-1 space-y-2">
+            <div
+              class="flex flex-col md:flex-row md:items-center justify-between gap-2"
+            >
+              <div>
+                <h2 id="profile-name" class="text-2xl font-bold text-white">
+                  Elena Rostova
+                </h2>
+                <p id="profile-email" class="text-slate-400 text-sm">
+                  elena.rostova@example.com
+                </p>
+              </div>
+              <span
+                class="inline-block px-3 py-1 bg-brand-500/10 text-brand-400 border border-brand-500/20 text-xs font-semibold rounded-full self-center md:self-auto"
+                >Premium Reader Membership</span
+              >
+            </div>
+            <div
+              class="flex flex-wrap justify-center md:justify-start gap-4 pt-3 text-xs text-slate-400"
+            >
+              <div>
+                <i class="fas fa-book-reader text-brand-400 mr-1"></i>
+                <strong class="text-slate-200" id="profile-purchased-count"
+                  >2</strong
+                >
+                Books Owned
+              </div>
+              <div>
+                <i class="fas fa-star text-amber-400 mr-1"></i>
+                <strong class="text-slate-200">14</strong> Reviews Posted
+              </div>
+              <div>
+                <i class="fas fa-calendar-alt text-accent-400 mr-1"></i> Member
+                since Jan 2024
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Tabs Content -->
+        <div class="space-y-6">
+          <h3 class="text-xl font-bold text-white flex items-center">
+            <i class="fas fa-bookmark text-brand-500 mr-3"></i> My Digital
+            Library & Downloads
+          </h3>
+          <div
+            id="profile-library-grid"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            <!-- Purchased books populated dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. ABOUT PAGE VIEW -->
+      <section
+        id="page-about"
+        class="page-view hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16"
+      >
+        <div class="text-center max-w-3xl mx-auto space-y-4">
+          <span
+            class="text-brand-400 font-semibold text-xs uppercase tracking-widest"
+            >Our Mission</span
+          >
+          <h1 class="text-4xl font-extrabold text-white">
+            Reimagining How The World Reads E-Books
+          </h1>
+          <p class="text-slate-400 text-lg leading-relaxed">
+            Lumina was built by book lovers, software engineers, and digital
+            typographers. We believe reading should be friction-free, beautiful,
+            and accessible anywhere in the universe.
+          </p>
+        </div>
+
+        <!-- Team Section Grid -->
+        <div class="space-y-8">
+          <h2 class="text-2xl font-bold text-white text-center">
+            Meet the Visionaries
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            <div
+              class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-3"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300"
+                class="w-20 h-20 rounded-full mx-auto object-cover border border-slate-700"
+                alt="Team member"
+              />
+              <h3 class="text-lg font-bold text-white">Alexander Vance</h3>
+              <p class="text-xs text-brand-400 font-medium">Founder & CEO</p>
+            </div>
+            <div
+              class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-3"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300"
+                class="w-20 h-20 rounded-full mx-auto object-cover border border-slate-700"
+                alt="Team member"
+              />
+              <h3 class="text-lg font-bold text-white">Sarah Jenkins</h3>
+              <p class="text-xs text-brand-400 font-medium">
+                Head of Publishing
+              </p>
+            </div>
+            <div
+              class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-3"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300"
+                class="w-20 h-20 rounded-full mx-auto object-cover border border-slate-700"
+                alt="Team member"
+              />
+              <h3 class="text-lg font-bold text-white">David Chen</h3>
+              <p class="text-xs text-brand-400 font-medium">
+                Lead UI/UX Architect
+              </p>
+            </div>
+            <div
+              class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-3"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=300"
+                class="w-20 h-20 rounded-full mx-auto object-cover border border-slate-700"
+                alt="Team member"
+              />
+              <h3 class="text-lg font-bold text-white">Amara Okafor</h3>
+              <p class="text-xs text-brand-400 font-medium">
+                Community Director
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. CONTACT PAGE VIEW -->
+      <section
+        id="page-contact"
+        class="page-view hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12"
+      >
+        <div class="text-center max-w-2xl mx-auto space-y-3">
+          <h1 class="text-3xl font-extrabold text-white">Get in Touch</h1>
+          <p class="text-slate-400 text-sm">
+            Have a question about a book purchase, author partnership, or reader
+            support? We are here to help 24/7.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <!-- Form -->
+          <div
+            class="lg:col-span-7 bg-slate-900 border border-slate-800 p-8 rounded-3xl space-y-6"
+          >
+            <form onsubmit="handleContactSubmit(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-2"
+                    >Your Name</label
+                  >
+                  <input
+                    type="text"
+                    required
+                    placeholder="John Doe"
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-2"
+                    >Email Address</label
+                  >
+                  <input
+                    type="email"
+                    required
+                    placeholder="john@example.com"
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-2"
+                  >Subject</label
+                >
+                <input
+                  type="text"
+                  required
+                  placeholder="Inquiry about EPUB downloads"
+                  class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-brand-500"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-2"
+                  >Message</label
+                >
+                <textarea
+                  rows="4"
+                  required
+                  placeholder="Type your message here..."
+                  class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-brand-500"
+                ></textarea>
+              </div>
+              <button
+                type="submit"
+                class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl transition-all shadow-md"
+              >
+                Send Message
+              </button>
+            </form>
+          </div>
+
+          <!-- FAQ Accordion & Contact Details -->
+          <div class="lg:col-span-5 space-y-6">
+            <div
+              class="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4"
+            >
+              <h3 class="text-lg font-bold text-white">
+                Frequently Asked Questions
+              </h3>
+
+              <div class="space-y-3">
+                <details
+                  class="group bg-slate-950/60 p-4 rounded-xl border border-slate-800/80"
+                >
+                  <summary
+                    class="font-medium text-sm text-slate-200 cursor-pointer flex justify-between items-center"
+                  >
+                    How do I receive my purchased e-books?
+                    <i
+                      class="fas fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"
+                    ></i>
+                  </summary>
+                  <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                    Instant download links are provided right after checkout.
+                    You can also re-download any purchased book anytime from
+                    your Profile Library.
+                  </p>
+                </details>
+
+                <details
+                  class="group bg-slate-950/60 p-4 rounded-xl border border-slate-800/80"
+                >
+                  <summary
+                    class="font-medium text-sm text-slate-200 cursor-pointer flex justify-between items-center"
+                  >
+                    What file formats are provided?
+                    <i
+                      class="fas fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"
+                    ></i>
+                  </summary>
+                  <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                    All e-books are supplied in high-quality EPUB and PDF
+                    formats, compatible with Kindle, Apple Books, Kobo, and
+                    desktop e-readers.
+                  </p>
+                </details>
+              </div>
+            </div>
+
+            <div
+              class="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3"
+            >
+              <h4
+                class="text-sm font-bold text-slate-200 uppercase tracking-wider"
+              >
+                Direct Support
+              </h4>
+              <p class="text-xs text-slate-400">
+                <i class="fas fa-envelope text-brand-400 mr-2"></i>
+                support@lumina-ebooks.com
+              </p>
+              <p class="text-xs text-slate-400">
+                <i class="fas fa-phone text-brand-400 mr-2"></i> +1 (800)
+                555-READ
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER SECTION -->
+    <footer class="bg-slate-950 border-t border-slate-800/80 py-12">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8"
+      >
+        <div class="space-y-4">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-book-open text-brand-500 text-xl"></i>
+            <span class="text-xl font-bold text-white">Lumina</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Your digital gateway to immersive reading. High quality e-books and
+            audiobooks across tech, fiction, and business.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-white mb-4">Quick Links</h4>
+          <ul class="space-y-2 text-xs text-slate-400">
+            <li>
+              <button
+                onclick="navigateTo('store')"
+                class="hover:text-brand-400"
+              >
+                Store Catalog
+              </button>
+            </li>
+            <li>
+              <button
+                onclick="navigateTo('about')"
+                class="hover:text-brand-400"
+              >
+                About Us
+              </button>
+            </li>
+            <li>
+              <button
+                onclick="navigateTo('contact')"
+                class="hover:text-brand-400"
+              >
+                Contact Support
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-white mb-4">Categories</h4>
+          <ul class="space-y-2 text-xs text-slate-400">
+            <li>
+              <button
+                onclick="
+                  navigateTo('store');
+                  setCategoryFilter('Fiction');
+                "
+                class="hover:text-brand-400"
+              >
+                Fiction Books
+              </button>
+            </li>
+            <li>
+              <button
+                onclick="
+                  navigateTo('store');
+                  setCategoryFilter('Technology');
+                "
+                class="hover:text-brand-400"
+              >
+                Tech & Code
+              </button>
+            </li>
+            <li>
+              <button
+                onclick="
+                  navigateTo('store');
+                  setCategoryFilter('Business');
+                "
+                class="hover:text-brand-400"
+              >
+                Business & Strategy
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="space-y-3">
+          <h4 class="text-sm font-semibold text-white">
+            Subscribe to Newsletter
+          </h4>
+          <div class="flex">
+            <input
+              type="email"
+              placeholder="Your email..."
+              class="bg-slate-900 border border-slate-800 rounded-l-xl px-3 py-2 text-xs text-slate-200 focus:outline-none w-full"
+            />
+            <button
+              onclick="showToast('Subscribed to newsletter!', 'success')"
+              class="bg-brand-500 text-white px-4 rounded-r-xl text-xs font-semibold hover:bg-brand-600"
+            >
+              Join
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 border-t border-slate-900 text-center text-xs text-slate-500"
+      >
+        &copy; 2026 Lumina eBooks Inc. All rights reserved. Self-contained
+        Single Page Digital Experience.
+      </div>
+    </footer>
+
+    <!-- MODAL: BOOK DETAIL POPUP -->
+    <div
+      id="modal-book-detail"
+      class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+    >
+      <div
+        class="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl relative"
+      >
+        <button
+          onclick="closeBookModal()"
+          class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+        <div id="book-modal-content" class="p-6 sm:p-8">
+          <!-- Injected by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: CART SLIDE-OUT / DRAWER -->
+    <div
+      id="modal-cart"
+      class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex justify-end"
+    >
+      <div
+        class="bg-slate-900 border-l border-slate-800 w-full max-w-md h-full flex flex-col justify-between p-6 shadow-2xl"
+      >
+        <div>
+          <div
+            class="flex items-center justify-between pb-4 border-b border-slate-800"
+          >
+            <h3 class="text-lg font-bold text-white flex items-center">
+              <i class="fas fa-shopping-bag text-brand-500 mr-2"></i> Your Cart
+            </h3>
+            <button
+              onclick="toggleCartModal(false)"
+              class="text-slate-400 hover:text-white p-2"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <!-- Cart Items Container -->
+          <div
+            id="cart-items-list"
+            class="py-4 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar"
+          >
+            <!-- Cart items rendered here -->
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 space-y-4">
+          <div class="flex items-center justify-between text-sm font-semibold">
+            <span class="text-slate-400">Total Price:</span>
+            <span
+              id="cart-total-price"
+              class="text-xl font-extrabold text-brand-400"
+              >$0.00</span
+            >
+          </div>
+          <button
+            onclick="openCheckoutModal()"
+            class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg transition-all"
+          >
+            Proceed to Checkout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: CHECKOUT / PAYMENT -->
+    <div
+      id="modal-checkout"
+      class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative"
+      >
+        <button
+          onclick="closeCheckoutModal()"
+          class="absolute top-4 right-4 text-slate-400 hover:text-white"
+        >
+          <i class="fas fa-times text-lg"></i>
+        </button>
+        <h3 class="text-2xl font-bold text-white">Complete Purchase</h3>
+
+        <div
+          class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2"
+        >
+          <div class="flex justify-between text-xs text-slate-400">
+            <span>Items Selected:</span
+            ><span id="checkout-count" class="text-slate-200">0</span>
+          </div>
+          <div class="flex justify-between text-sm font-bold text-white">
+            <span>Total Amount:</span
+            ><span id="checkout-total" class="text-brand-400">$0.00</span>
+          </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="space-y-3">
+          <label class="block text-xs font-semibold text-slate-300"
+            >Select Payment Method</label
+          >
+          <div class="grid grid-cols-3 gap-3">
+            <button
+              type="button"
+              onclick="selectPaymentMethod('card', this)"
+              class="payment-opt active border-2 border-brand-500 bg-slate-800/80 p-3 rounded-xl text-center flex flex-col items-center justify-center space-y-1"
+            >
+              <i class="fas fa-credit-card text-brand-400 text-lg"></i>
+              <span class="text-[10px] font-bold text-white">Credit Card</span>
+            </button>
+            <button
+              type="button"
+              onclick="selectPaymentMethod('paypal', this)"
+              class="payment-opt border border-slate-800 bg-slate-950 p-3 rounded-xl text-center flex flex-col items-center justify-center space-y-1"
+            >
+              <i class="fab fa-paypal text-blue-400 text-lg"></i>
+              <span class="text-[10px] font-bold text-white">PayPal</span>
+            </button>
+            <button
+              type="button"
+              onclick="selectPaymentMethod('wallet', this)"
+              class="payment-opt border border-slate-800 bg-slate-950 p-3 rounded-xl text-center flex flex-col items-center justify-center space-y-1"
+            >
+              <i class="fab fa-apple-pay text-slate-200 text-lg"></i>
+              <span class="text-[10px] font-bold text-white"
+                >Digital Wallet</span
+              >
+            </button>
+          </div>
+        </div>
+
+        <form onsubmit="handlePaymentSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1"
+              >Cardholder Name</label
+            >
+            <input
+              type="text"
+              required
+              placeholder="Elena Rostova"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1"
+              >Card Number</label
+            >
+            <input
+              type="text"
+              required
+              placeholder="4532 •••• •••• 8921"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500"
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1"
+                >Expiry Date</label
+              >
+              <input
+                type="text"
+                placeholder="08/28"
+                required
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1"
+                >CVC Code</label
+              >
+              <input
+                type="password"
+                maxlength="4"
+                placeholder="123"
+                required
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            id="pay-button"
+            class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold rounded-xl shadow-lg transition-all text-sm"
+          >
+            Confirm & Pay Now
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: LOGIN / REGISTER MODAL -->
+    <div
+      id="modal-auth"
+      class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl relative"
+      >
+        <button
+          onclick="closeAuthModal()"
+          class="absolute top-4 right-4 text-slate-400 hover:text-white"
+        >
+          <i class="fas fa-times text-lg"></i>
+        </button>
+
+        <!-- Auth Tab Controls -->
+        <div class="flex border-b border-slate-800">
+          <button
+            id="tab-login-btn"
+            onclick="switchAuthTab('login')"
+            class="w-1/2 pb-3 font-bold text-center border-b-2 border-brand-500 text-white transition-colors"
+          >
+            Log In
+          </button>
+          <button
+            id="tab-register-btn"
+            onclick="switchAuthTab('register')"
+            class="w-1/2 pb-3 font-bold text-center border-b-2 border-transparent text-slate-400 transition-colors"
+          >
+            Register
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <form
+          id="form-login"
+          onsubmit="handleAuthSubmit(event, 'login')"
+          class="space-y-4"
+        >
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1"
+              >Email Address</label
+            >
+            <input
+              type="email"
+              required
+              placeholder="elena@example.com"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-xs focus:outline-none focus:border-brand-500"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1"
+              >Password</label
+            >
+            <input
+              type="password"
+              required
+              placeholder="••••••••"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-xs focus:outline-none focus:border-brand-500"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg transition-all text-xs uppercase tracking-wider"
+          >
+            Log In to Reader Account
+          </button>
+        </form>
+
+        <!-- Register Form -->
+        <form
+          id="form-register"
+          onsubmit="handleAuthSubmit(event, 'register')"
+          class="space-y-4 hidden"
+        >
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1"
+              >Full Name</label
+            >
+            <input
+              type="text"
+              required
+              placeholder="Elena Rostova"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-xs focus:outline-none focus:border-brand-500"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1"
+              >Email Address</label
+            >
+            <input
+              type="email"
+              required
+              placeholder="elena@example.com"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-xs focus:outline-none focus:border-brand-500"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1"
+              >Password</label
+            >
+            <input
+              type="password"
+              required
+              placeholder="••••••••"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-xs focus:outline-none focus:border-brand-500"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg transition-all text-xs uppercase tracking-wider"
+          >
+            Create New Account
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script src="script.js"></script>
+  </body>
+</html>
